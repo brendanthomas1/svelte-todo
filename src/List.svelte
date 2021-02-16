@@ -1,46 +1,32 @@
 <script>
   import { onMount } from 'svelte';
   import Item from './Item.svelte';
+  import TodoStore from './todoStore';
 
   export let listTitle;
 
-  let todos = [];
-  let new_todo;
-  let tid = 1;
+  let { todos } = TodoStore;
+  let newTodoInput;
 
-  function loadTodos() {
-    let todosFromStorage = localStorage.getItem('todos');
-
-    if (todosFromStorage != undefined) {
-      todos = JSON.parse(todosFromStorage);
-    }
-  }
-
-  onMount(async () => loadTodos())
+  const clearInput = () => document.getElementById('new_todo').value = '';
 
   function addTodo() {
-    todos = [...todos, { id: tid, description: new_todo }];
-    updateStorage();
-    tid++;
-    document.getElementById('new_todo').value = '';
-  }
+    TodoStore.add({ description: newTodoInput });
+
+    clearInput();
+  };
 
   function destroy(event) {
     const id = event.detail;
-    todos = todos.filter(todo => todo.id !== id);
-    updateStorage();
+    TodoStore.destroy(id);
   };
-
-  function updateStorage() {
-    localStorage.setItem('todos', JSON.stringify(todos))
-  }
 </script>
 
 <div class='column'>
   <h2>{listTitle}</h2>
 
   <ul>
-    {#each todos as todo}
+    {#each $todos as todo}
       <Item
         id={todo.id}
         description={todo.description}
@@ -48,7 +34,7 @@
       />
     {/each}
 
-    <input id="new_todo" bind:value={new_todo} />
+    <input id="new_todo" bind:value={newTodoInput} />
     <a class="button" on:click={addTodo}>Add Todo</a>
   </ul>
 </div>
