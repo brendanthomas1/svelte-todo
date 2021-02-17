@@ -20,7 +20,7 @@ class TodoStore {
     if (this.validateDescription(todo)) return;
 
     this._todos.update(todos => {
-      const newSet = [...todos, { id: uuid(), ...todo }]
+      const newSet = [...todos, { id: uuid(), completedAt: null, ...todo }]
       this.updateStorage(newSet)
       return newSet
     })
@@ -31,6 +31,16 @@ class TodoStore {
       const newSet = todos.filter(todo => todo.id !== id);
       this.updateStorage(newSet)
       return newSet
+    })
+  }
+
+  complete(id) {
+    this._todos.update(todos => {
+      let newTodos = todos.map(todo =>
+        todo.id === id ? { ...todo, completedAt: Date.now() } : todo
+      )
+      this.updateStorage(newTodos);
+      return newTodos;
     })
   }
 
